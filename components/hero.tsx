@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { ArrowRight, Mail } from "lucide-react";
-import ContactModal from "./contact-modal"; // Import the new component
+import ContactModal from "./contact-modal";
 
 export default function Hero() {
   const [isContactOpen, setIsContactOpen] = useState(false);

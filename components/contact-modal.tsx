@@ -6,7 +6,7 @@ import { X, Send, CheckCircle, Loader2 } from "lucide-react";
 type ContactModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  formId: string; // We pass the ID here
+  formId: string;
 };
 
 export default function ContactModal({ isOpen, onClose, formId }: ContactModalProps) {
@@ -67,7 +67,7 @@ export default function ContactModal({ isOpen, onClose, formId }: ContactModalPr
               <input
                 id="subject"
                 type="text" 
-                name="_subject" // Formspree special field for subject line
+                name="_subject"
                 required
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition"
                 placeholder="Project Inquiry / Job Opportunity"

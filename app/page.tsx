@@ -118,8 +118,8 @@ export default function Home() {
                   <div className="h-10 w-10 rounded-lg bg-orange-100 flex items-center justify-center text-xl">🤖</div>
                   <span className="text-xs font-mono bg-gray-800 text-white px-2 py-1 rounded">v1.0</span>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Automated Outreach Bot</h3>
-                <p className="text-sm text-gray-600">Python-based agent utilizing OpenAI API to personalize cold outreach based on lead data.</p>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">Automated Email Bot</h3>
+                <p className="text-sm text-gray-600">Python-based agent utilizing OpenAI API to personalize and automate email replies.</p>
               </div>
             </div>
              {/* Project 2 */}
@@ -141,7 +141,7 @@ export default function Home() {
                   <span className="text-xs font-mono bg-gray-800 text-white px-2 py-1 rounded">NLP</span>
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-2">Customer Support Bot</h3>
-                <p className="text-sm text-gray-600">Agent utilizing Gemini API to personalize email replies and automate customer service.</p>
+                <p className="text-sm text-gray-600">Support Agent utilizing Gemini API to personalize and automate customer service.</p>
               </div>
             </div>
           </div>
