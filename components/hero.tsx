@@ -1,8 +1,15 @@
 "use client";
 
+import { useState } from "react";
 import { ArrowRight, Mail } from "lucide-react";
+import ContactModal from "./contact-modal"; // Import the new component
 
 export default function Hero() {
+  const [isContactOpen, setIsContactOpen] = useState(false);
+
+
+  const FORMSPREE_ID = "xeeeevqv"; 
+
   const scrollToSection = (id: string) => {
     const el = document.getElementById(id);
     if (el) el.scrollIntoView({ behavior: "smooth" });
@@ -10,6 +17,12 @@ export default function Hero() {
 
   return (
     <>
+      <ContactModal 
+        isOpen={isContactOpen} 
+        onClose={() => setIsContactOpen(false)} 
+        formId={FORMSPREE_ID} 
+      />
+
       {/* Hero Header */}
       <header id="hero" className="pt-32 pb-16 sm:pt-40 sm:pb-20 bg-white border-b border-stone-100">
         <div className="max-w-4xl mx-auto px-4 text-center">
@@ -31,12 +44,12 @@ export default function Hero() {
           </div>
 
           <div className="flex justify-center gap-4">
-            <a
-              href="mailto:kibecurtis@gmail.com"
+            <button
+              onClick={() => setIsContactOpen(true)}
               className="px-6 py-3 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition shadow-lg flex items-center gap-2"
             >
-              <Mail className="w-4 h-4" /> Contact Me
-            </a>
+              <Mail className="w-4 h-4" /> Reach Out
+            </button>
             <button
               onClick={() => scrollToSection("playground")}
               className="px-6 py-3 bg-white text-orange-600 border border-orange-200 font-semibold rounded-lg hover:bg-orange-50 transition flex items-center gap-2"
