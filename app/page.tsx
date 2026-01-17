@@ -151,18 +151,47 @@ export default function Home() {
       <AIPlayground />
 
       {/* Footer */}
+      <{/* Footer */}
       <footer className="bg-gray-900 text-gray-300 py-12">
         <div className="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-8">
           <div>
             <h3 className="text-white text-lg font-bold mb-4">Education</h3>
             <p className="text-white font-semibold">B.Sc. Aeronautical Engineering</p>
             <p className="text-sm text-gray-400">Kenya Aeronautical College | 2022</p>
+            <p className="text-xs text-gray-500 mt-2">Focus: Systems Engineering & Fluid Dynamics</p>
           </div>
           <div className="text-right flex flex-col items-start md:items-end">
              <h3 className="text-white text-lg font-bold mb-4">Connect</h3>
-             <a href="mailto:kibecurtis@gmail.com" className="flex items-center gap-2 hover:text-orange-400 transition"><Mail size={16}/> kibecurtis@gmail.com</a>
-             <a href="#" className="flex items-center gap-2 hover:text-white transition mt-2"><Linkedin size={16}/> LinkedIn</a>
-             <a href="#" className="flex items-center gap-2 hover:text-white transition mt-2"><Github size={16}/> GitHub</a>
+             
+             {/* 1. Email */}
+             <a 
+               href="mailto:kibecurtis@gmail.com" 
+               className="flex items-center gap-2 hover:text-orange-400 transition"
+             >
+               <Mail size={16}/> kibecurtis@gmail.com
+             </a>
+
+             {/* 2. LinkedIn */}
+             <a 
+               href="https://www.linkedin.com/in/curtiskibe" 
+               target="_blank" 
+               rel="noopener noreferrer" 
+               className="flex items-center gap-2 hover:text-white transition mt-2"
+             >
+               <Linkedin size={16}/> LinkedIn Profile
+             </a>
+
+             {/* 3. GitHub */}
+             <a 
+               href="https://github.com/CurtisKibe" 
+               target="_blank" 
+               rel="noopener noreferrer" 
+               className="flex items-center gap-2 hover:text-white transition mt-2"
+             >
+               <Github size={16}/> GitHub Portfolio
+             </a>
+             
+             <p className="text-xs text-gray-600 mt-6">&copy; 2025 Curtis Kibe. Engineered with Next.js.</p>
           </div>
         </div>
       </footer>
