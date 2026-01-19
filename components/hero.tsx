@@ -1,19 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowRight, Mail } from "lucide-react";
+import { MessageSquare, Mail } from "lucide-react";
 import ContactModal from "./contact-modal";
 
 export default function Hero() {
   const [isContactOpen, setIsContactOpen] = useState(false);
 
 
-  const FORMSPREE_ID = "xeeeevqv"; 
-
-  const scrollToSection = (id: string) => {
-    const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: "smooth" });
-  };
+  const FORMSPREE_ID = "xeeeevqv";
 
   return (
     <>
@@ -48,13 +43,13 @@ export default function Hero() {
               onClick={() => setIsContactOpen(true)}
               className="px-6 py-3 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition shadow-lg flex items-center gap-2"
             >
-              <Mail className="w-4 h-4" /> Reach Out
+              <Mail className="w-4 h-4" /> Contact Me
             </button>
             <button
-              onClick={() => scrollToSection("playground")}
+              onClick={() => window.dispatchEvent(new Event("open-chat"))} // <--- The Magic Trigger
               className="px-6 py-3 bg-white text-orange-600 border border-orange-200 font-semibold rounded-lg hover:bg-orange-50 transition flex items-center gap-2"
             >
-              Try The AI Demo <ArrowRight className="w-4 h-4" />
+              Try My AI Assistant <MessageSquare className="w-4 h-4" />
             </button>
           </div>
         </div>

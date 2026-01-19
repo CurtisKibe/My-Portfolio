@@ -151,14 +151,13 @@ export default function Home() {
       <AIPlayground />
 
       {/* Footer */}
-      <{/* Footer */}
       <footer className="bg-gray-900 text-gray-300 py-12">
         <div className="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-8">
           <div>
             <h3 className="text-white text-lg font-bold mb-4">Education</h3>
             <p className="text-white font-semibold">B.Sc. Aeronautical Engineering</p>
             <p className="text-sm text-gray-400">Kenya Aeronautical College | 2022</p>
-            <p className="text-xs text-gray-500 mt-2">Focus: Systems Engineering & Fluid Dynamics</p>
+            <p className="text-xs text-gray-500 mt-2">Focus Areas: Avionics, Systems Engineering & Fluid Dynamics</p>
           </div>
           <div className="text-right flex flex-col items-start md:items-end">
              <h3 className="text-white text-lg font-bold mb-4">Connect</h3>

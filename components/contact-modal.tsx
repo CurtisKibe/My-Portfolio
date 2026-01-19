@@ -57,7 +57,7 @@ export default function ContactModal({ isOpen, onClose, formId }: ContactModalPr
                 name="email"
                 required
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition"
-                placeholder="recruiter@company.com"
+                placeholder="you@company.com"
               />
               <ValidationError prefix="Email" field="email" errors={state.errors} className="text-red-500 text-xs mt-1" />
             </div>

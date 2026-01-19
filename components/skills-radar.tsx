@@ -66,7 +66,7 @@ export default function SkillsRadar() {
   };
 
   return (
-    <div className="w-full h-[300px] sm:h-[350px]">
+    <div className="w-full h-75 sm:h-87.5">
       <Radar data={data} options={options} />
     </div>
   );

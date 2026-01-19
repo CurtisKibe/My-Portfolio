@@ -33,13 +33,13 @@ export default function AIPlayground() {
   };
 
   return (
-    <section id="playground" className="py-16 bg-gradient-to-br from-stone-50 to-orange-50/30 border-t border-stone-200">
+    <section id="playground" className="py-16 bg-linear-to-br from-stone-50 to-orange-50/30 border-t border-stone-200">
       <div className="max-w-4xl mx-auto px-4">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center p-2 bg-orange-100 rounded-full mb-4">
             <Sparkles className="w-6 h-6 text-orange-600" />
           </div>
-          <h2 className="text-3xl font-bold text-gray-900">Product Strategy Validator</h2>
+          <h2 className="text-3xl font-bold text-gray-900">Product/Strategy Validator</h2>
           <p className="mt-2 text-gray-600">
             Enter a startup idea, and my AI Agent will generate a technical feasibility check and growth strategy for you.
           </p>
