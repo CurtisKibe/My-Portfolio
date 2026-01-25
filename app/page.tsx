@@ -86,7 +86,7 @@ export default function Home() {
                {/* Skill Lists */}
                <div>
                   <h3 className="text-xl font-bold text-gray-900 mb-2 border-l-4 border-orange-500 pl-3">Core Engineering</h3>
-                  <p className="text-gray-600">Building robust backend logic and AI agents. Experienced in automating workflows.</p>
+                  <p className="text-gray-600">Building robust and secure backend logic and AI agents. Experienced in automating workflows.</p>
                </div>
                <div>
                   <h3 className="text-xl font-bold text-gray-900 mb-2 border-l-4 border-blue-500 pl-3">Product & Growth</h3>

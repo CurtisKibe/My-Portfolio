@@ -46,7 +46,7 @@ export default function Hero() {
               <Mail className="w-4 h-4" /> Contact Me
             </button>
             <button
-              onClick={() => window.dispatchEvent(new Event("open-chat"))} // <--- The Magic Trigger
+              onClick={() => window.dispatchEvent(new Event("open-chat"))} 
               className="px-6 py-3 bg-white text-orange-600 border border-orange-200 font-semibold rounded-lg hover:bg-orange-50 transition flex items-center gap-2"
             >
               Try My AI Assistant <MessageSquare className="w-4 h-4" />

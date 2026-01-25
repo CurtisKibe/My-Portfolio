@@ -20,22 +20,22 @@ const EXPERIENCE_DATA: ExpItem[] = [
   {
     id: "exp1",
     role: "Founding Engineer & Tech Lead",
-    company: "HumAInity Labs",
-    date: "Nov 2024 – Present",
+    company: "HumAInity Labs (Hybrid)",
+    date: "Sept 2025 – Present",
     type: "tech",
     desc: "Leading a 5-person team building AI solutions.",
     details: [
-      "Architected backend logic for 'MediGrid' (Health) and 'EcoLoom' (Agri) using Python.",
+      "Architected backend logic for 'MediGrid' (Health) and 'AgriGuard' (Agri) using Python.",
       "Reduced admin overhead by ~40% via custom AI agents.",
-      "Designed value-driven pitch decks for 'BimaSync'.",
+      "Designed value-driven pitch decks for 'DairyLink' and 'BimaSync'.",
     ],
     color: "bg-orange-500",
   },
   {
     id: "exp2",
     role: "Data Content Strategist",
-    company: "Her Data Project",
-    date: "Nov 2024 – Present",
+    company: "Her Data Project (Remote)",
+    date: "Nov 2025 – Present",
     type: "tech",
     desc: "Bridging raw analytics and public engagement.",
     details: [
@@ -48,7 +48,7 @@ const EXPERIENCE_DATA: ExpItem[] = [
     id: "exp3",
     role: "Executive Operations Partner",
     company: "Urban Alive (Remote)",
-    date: "Aug 2023 – Oct 2024",
+    date: "Aug 2023 – Oct 2025",
     type: "ops",
     desc: "High-level operational support and data intelligence.",
     details: [
@@ -61,7 +61,7 @@ const EXPERIENCE_DATA: ExpItem[] = [
     id: "exp4",
     role: "Program Coordinator",
     company: "Africa for SDGs (Hybrid)",
-    date: "Sept 2020 – Nov 2022",
+    date: "Sept 2020 – Nov 2023",
     type: "ops",
     desc: "Logistics at scale for community programs.",
     details: [

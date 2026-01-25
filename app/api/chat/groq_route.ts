@@ -1,12 +1,12 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import Groq from "groq-sdk";
 import { NextResponse } from "next/server";
 
-// Initialize Gemini
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+// Initialize Groq
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 // --- SECURITY CONFIGURATION ---
 const RATE_LIMIT_WINDOW = 24 * 60 * 60 * 1000; // 24 Hours
-const MAX_MESSAGES_PER_WINDOW = 20;           
+const MAX_MESSAGES_PER_WINDOW = 20;            // 20 Messages per IP
 
 // In-Memory User Tracker
 const ipTracker = new Map<string, { count: number; expiry: number }>();
@@ -88,83 +88,44 @@ export async function POST(req: Request) {
     const body = await req.json();
     message = body.message || "";
 
-    // 1. TELEMETRY: LOG REQUEST
-    console.log(JSON.stringify({
-      level: "info",
-      event: "chat_request",
-      ip: ip,
-      input_preview: message.substring(0, 50) + "..." // Log first 50 chars only
-    }));
+    // 1. TELEMETRY
+    console.log(JSON.stringify({ level: "info", event: "chat_request", ip: ip, input_preview: message.substring(0, 50) }));
 
+    // 2. RATE LIMITING
     const now = Date.now();
     const userRecord = ipTracker.get(ip);
+    if (userRecord && now > userRecord.expiry) ipTracker.delete(ip);
 
-    // Cleanup expired records
-    if (userRecord && now > userRecord.expiry) {
-      ipTracker.delete(ip);
-    }
-
-    // 2. SECURITY: ENFORCE LIMIT
     if (userRecord && userRecord.count >= MAX_MESSAGES_PER_WINDOW) {
-      // Log Blocking Event
-      console.warn(JSON.stringify({
-        level: "warning",
-        event: "chat_blocked",
-        ip: ip,
-        count: userRecord.count
-      }));
-
       return NextResponse.json(
-        { 
-          reply: "🔒 **Daily Limit Reached.**\n\nTo prevent bot abuse, I am limited to 20 messages per visitor per day.\n\nPlease email Curtis directly if you have more questions!" 
-        },
+        { reply: "🔒 **Daily Limit Reached.**\n\nI am limited to 20 messages per visitor per day." },
         { status: 429 }
       );
     }
 
-    // Update Tracker
-    if (!userRecord) {
-      ipTracker.set(ip, { count: 1, expiry: now + RATE_LIMIT_WINDOW });
-    } else {
-      userRecord.count++;
-    }
+    if (!userRecord) ipTracker.set(ip, { count: 1, expiry: now + RATE_LIMIT_WINDOW });
+    else userRecord.count++;
 
-    // 3. AI EXECUTION
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-    
-    const chat = model.startChat({
-      history: [
-        {
-          role: "user",
-          parts: [{ text: SYSTEM_CONTEXT }],
-        },
-        {
-          role: "model",
-          parts: [{ text: "Understood. I am ready to represent Curtis." }],
-        },
+    // 3. GROQ AI EXECUTION
+    const completion = await groq.chat.completions.create({
+      messages: [
+        { role: "system", content: SYSTEM_CONTEXT }, 
+        { role: "user", content: message },          
       ],
+      model: "mixtral-8x7b-32768", // Or "mixtral-8x7b-32768" for speed
+      temperature: 0.7,
+      max_tokens: 500,
     });
 
-    const result = await chat.sendMessage(message);
-    const response = await result.response;
-    const text = response.text();
+    const replyText = completion.choices[0]?.message?.content || "No response generated.";
 
-    // 4. TELEMETRY: LOG SUCCESS
-    console.log(JSON.stringify({
-      level: "info",
-      event: "chat_success",
-      ip: ip
-    }));
+    // 4. LOG SUCCESS
+    console.log(JSON.stringify({ level: "info", event: "chat_success", ip: ip }));
 
-    return NextResponse.json({ reply: text });
+    return NextResponse.json({ reply: replyText });
 
   } catch (error) {
-    console.error(JSON.stringify({
-      level: "error",
-      event: "chat_failure",
-      ip: ip,
-      error: String(error)
-    }));
+    console.error("Groq Chat Error:", error);
     return NextResponse.json({ error: "Failed to process AI request" }, { status: 500 });
   }
 }

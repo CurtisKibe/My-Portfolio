@@ -24,16 +24,17 @@ export default function SkillsRadar() {
   const data = {
     labels: [
       "Python/AI Dev",
+      "Cybersecurity",
+      "Systems Eng.",
       "Automation",
+      "Team Leadership",
       "Product Strategy",
       "Data Storytelling",
-      "Team Leadership",
-      "Systems Eng.",
     ],
     datasets: [
       {
         label: "Skill Proficiency",
-        data: [90, 85, 80, 75, 85, 70],
+        data: [90, 70, 75, 85, 90, 70,80],
         backgroundColor: "rgba(234, 88, 12, 0.2)",
         borderColor: "rgb(234, 88, 12)",
         borderWidth: 2,
@@ -51,7 +52,7 @@ export default function SkillsRadar() {
         angleLines: { color: "#E5E7EB" },
         grid: { color: "#E5E7EB" },
         pointLabels: {
-          font: { size: 12, family: "'Inter', sans-serif", weight: "bold" as const }, // Fixed TS type
+          font: { size: 12, family: "'Inter', sans-serif", weight: "bold" as const }, 
           color: "#374151",
         },
         suggestedMin: 0,

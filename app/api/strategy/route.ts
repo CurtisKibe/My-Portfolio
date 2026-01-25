@@ -1,40 +1,51 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import Groq from "groq-sdk";
 import { NextResponse } from "next/server";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
-
 // --- SECURITY CONFIGURATION ---
-const RATE_LIMIT_WINDOW = 24 * 60 * 60 * 1000; // 24 Hours
-const MAX_REQUESTS_PER_WINDOW = 2;             // 2 Strikes Policy
+const RATE_LIMIT_WINDOW = 24 * 60 * 60 * 1000; 
+const MAX_REQUESTS_PER_WINDOW = 10;            
 
 // In-Memory User Tracker
 const ipTracker = new Map<string, { count: number; expiry: number }>();
 
 export async function POST(req: Request) {
   const ip = req.headers.get("x-forwarded-for") || "unknown_ip";
-  let idea = "";
 
   try {
-    const body = await req.json();
-    idea = body.idea || "";
+    // 1. SAFETY CHECK: Check API Key FIRST
+    if (!process.env.GROQ_API_KEY) {
+      console.error("CRITICAL: GROQ_API_KEY is missing in .env.local");
+      return NextResponse.json(
+        { content: "### ⚠️ System Error\n\nMy brain is missing an API Key. Please tell the developer." },
+        { status: 500 }
+      );
+    }
 
-    // 1. TELEMETRY: LOG REQUEST
+    // Initialize Groq
+    const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+
+    const body = await req.json();
+    
+    const { messages } = body; 
+    
+    const currentMessages = messages || [];
+
+    // 2. TELEMETRY: LOG REQUEST
     console.log(JSON.stringify({
       level: "info",
-      event: "strategy_request",
+      event: "strategy_turn",
       ip: ip,
-      idea_preview: idea // Valuable market data
+      msg_count: currentMessages.length
     }));
 
     const now = Date.now();
     const userRecord = ipTracker.get(ip);
     
-    // Cleanup expired records
     if (userRecord && now > userRecord.expiry) {
       ipTracker.delete(ip);
     }
 
-    // 2. SECURITY: ENFORCE STRICT LIMIT
+    // 3. SECURITY: ENFORCE STRICT LIMIT
     if (userRecord && userRecord.count >= MAX_REQUESTS_PER_WINDOW) {
       console.warn(JSON.stringify({
         level: "warning",
@@ -45,35 +56,48 @@ export async function POST(req: Request) {
 
       return NextResponse.json(
         { 
-          strategy: `### 🔒 Access Limit Reached\n\nTo ensure fair access for all recruiters and visitors, this demo is restricted to **${MAX_REQUESTS_PER_WINDOW} analyses per day**.\n\nPlease feel free to explore the rest of my portfolio or reach out via email for a deeper discussion!` 
+          content: `### 🔒 Access Limit Reached\n\nTo ensure fair access, strategy sessions are limited to **${MAX_REQUESTS_PER_WINDOW} turns per day**.` 
         },
         { status: 429 }
       );
     }
 
-    // Update Tracker
+    // Updates Tracker
     if (!userRecord) {
       ipTracker.set(ip, { count: 1, expiry: now + RATE_LIMIT_WINDOW });
     } else {
       userRecord.count++;
     }
 
-    // 3. AI EXECUTION
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-
-
-    const prompt = `
+    // 4. AI EXECUTION
+    const systemPrompt = `
       # ROLE & PERSONA
       You are "The Venture Architect," a Tier-1 Venture Capitalist and Product Strategist with the critical eye of a "Shark Tank" judge and the technical depth of a Senior PM. Your goal is not to be nice, but to be *right*. You validate, contextualize, and assess market viability with brutal honesty and high-level strategic insight.
 
+      # 🛡️ STRICT GUARDRAILS (SCOPE ENFORCEMENT)
+      **You are strictly a business validation engine.**
+      * **ACCEPTABLE TOPICS:** Startup ideas, business models, market analysis, product features, pricing, and growth strategy.
+      * **OFF-TOPIC TRIGGERS:** If the user asks about:
+        - General knowledge (e.g., "What is the capital of France?", "Who won the World Cup?")
+        - Creative writing (e.g., "Write a poem about cats")
+        - Coding help unrelated to architecture (e.g., "How do I center a div?")
+        - Personal life or casual chit-chat.
+      
+      * **PROTOCOL FOR OFF-TOPIC INPUT:**
+        Do NOT answer the question. Do NOT apologize profusely.
+        Reply strictly with: "Sorry, I cannot provide you with information you requested. My system is calibrated exclusively for Venture Strategy. Please provide a startup concept or business question to proceed."
+      
       # INPUT DATA
-      The user has provided the following startup/product concept:
-      """
-      ${idea}
-      """
+      The user is pitching a startup/product concept in this conversation.
+      You must treat the entire message history as the context for the pitch.
 
       # OPERATIONAL PROTOCOL
-      You must follow this logic flow strictly. Do not skip steps.
+      If the Input is on topic, you must follow this logic flow strictly. Do not skip steps.
+      Display each phase and its title and their contents. This is what all the phase titles should be:
+      Phase one - **PHASE 1: THE AUDIT**
+      Phase two - **PHASE 2: THE ANALYSIS**
+      Phase three - **PHASE 3: THE EVALUATION**
+      Phase four - **PHASE 4: THE VERDICT**
 
       ## PHASE 1: THE PITCH AUDIT (Internal Monologue)
       Analyze the input. Does it provide sufficient detail regarding:
@@ -104,11 +128,11 @@ export async function POST(req: Request) {
       * **Contextual Reality:** [Technical or market barriers they missed]
 
       ### 💡 The Golden Ticket (Improvement)
-      * [Provide exactly ONE high-impact, actionable tip to significantly increase their score.]
+      * [Provide exactly TWO high-impact, actionable tip to significantly increase their score.]
 
       ---
 
-      ### 📥 YOUR STRATEGY DOWNLOAD
+      ### 📥 YOUR STRATEGY MAP
       *Below is your formalized Investment Memo. You can copy/export this section.*
 
       \`\`\`markdown
@@ -126,30 +150,38 @@ export async function POST(req: Request) {
       * **Threats:** [Competitor/Risk]
 
       ## NEXT STEPS
-      [The specific improvement tip provided above]
+      [The specific improvement tips provided above]
       \`\`\`
     `;
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
+    const completion = await groq.chat.completions.create({
+      messages: [
+        { role: "system", content: systemPrompt }, 
+        ...currentMessages 
+      ],
+      model: "llama-3.3-70b-versatile",
+      temperature: 0.6,
+    });
 
-    // 4. TELEMETRY: LOG SUCCESS
+    const replyText = completion.choices[0]?.message?.content || "Analysis failed to generate.";
+
+    // 5. TELEMETRY: LOG SUCCESS
     console.log(JSON.stringify({
       level: "info",
       event: "strategy_success",
       ip: ip
     }));
 
-    return NextResponse.json({ strategy: text });
+    return NextResponse.json({ content: replyText });
 
-  } catch (error) {
-    console.error(JSON.stringify({
-      level: "error",
-      event: "strategy_failure",
-      ip: ip,
-      error: String(error)
-    }));
-    return NextResponse.json({ error: "Failed to generate strategy" }, { status: 500 });
+  } catch (error: unknown) {
+    console.error("Strategy API Error:", error);
+    
+    const errorMessage = error instanceof Error ? error.message : String(error);
+
+    return NextResponse.json(
+      { error: `Failed to generate strategy: ${errorMessage}` }, 
+      { status: 500 }
+    );
   }
 }

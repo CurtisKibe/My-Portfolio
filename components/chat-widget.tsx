@@ -9,13 +9,12 @@ type Message = { role: "user" | "bot"; text: string };
 export default function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
   
-  // UPDATED: Using backticks (`) for the multi-line welcome message
   const [messages, setMessages] = useState<Message[]>([
     { 
       role: "bot", 
       text: `Welcome to Curtis Kibe's professional ecosystem.
 
-I am Aqie, Curtis's AI assistant. My database is strictly focused on his career, code, and leadership principles.
+I am **Aqie**, Curtis's AI assistant. My database is strictly focused on his career, code, and leadership principles.
 
 I am here to help you cut through the noise and access the specific data points that matter to your organization.
 
@@ -33,12 +32,15 @@ I am here to help you cut through the noise and access the specific data points 
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll to bottom
+  // FIXED: Smart Auto-scroll using 'scrollTo' for better behavior
   useEffect(() => {
     if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      scrollRef.current.scrollTo({
+        top: scrollRef.current.scrollHeight,
+        behavior: "smooth",
+      });
     }
-  }, [messages, loading]);
+  }, [messages.length, loading]);
 
   useEffect(() => {
     const handleOpen = () => setIsOpen(true);
@@ -60,11 +62,27 @@ I am here to help you cut through the noise and access the specific data points 
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: userMsg }),
       });
+
+      // FIX: Check if the response is actually JSON before parsing
+      const contentType = res.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        const text = await res.text();
+        console.error("Server Error (HTML received):", text);
+        throw new Error(`Server Error: ${res.status} ${res.statusText}`);
+      }
+
       const data = await res.json();
-      setMessages((prev) => [...prev, { role: "bot", text: data.reply || "Sorry, I couldn't think of an answer." }]);
-    } catch (err) {
+      
+      if (!res.ok) {
+        throw new Error(data.reply || data.error || "Unknown server error");
+      }
+
+      setMessages((prev) => [...prev, { role: "bot", text: data.reply }]);
+
+    } catch (err: unknown) {
       console.error(err);
-      setMessages((prev) => [...prev, { role: "bot", text: "Error connecting to server." }]);
+      const errorMessage = err instanceof Error ? err.message : "Connection failed";
+      setMessages((prev) => [...prev, { role: "bot", text: `⚠️ ${errorMessage}. (Check console for details)` }]);
     } finally {
       setLoading(false);
     }
@@ -74,9 +92,11 @@ I am here to help you cut through the noise and access the specific data points 
     <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
       {/* Chat Window */}
       {isOpen && (
-        <div className="mb-4 w-80 sm:w-96 h-125px bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden flex flex-col animate-in slide-in-from-bottom-5 fade-in duration-300">
+        // FIXED: Height set to h-[500px] so scrolling is possible
+        <div className="mb-4 w-80 sm:w-96 h-125 bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden flex flex-col animate-in slide-in-from-bottom-5 fade-in duration-300">
+          
           {/* Header */}
-          <div className="bg-gray-900 text-white p-4 flex justify-between items-center">
+          <div className="bg-gray-900 text-white p-4 flex justify-between items-center shrink-0">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-sm font-bold">AI</div>
               <div>
@@ -89,8 +109,9 @@ I am here to help you cut through the noise and access the specific data points 
             </button>
           </div>
 
-          {/* Messages */}
-          <div ref={scrollRef} className="flex-1 p-4 overflow-y-auto space-y-4 bg-stone-50">
+          {/* Messages Area */}
+          {/* FIXED: 'min-h-0' allows flex child to scroll properly */}
+          <div ref={scrollRef} className="flex-1 min-h-0 p-4 overflow-y-auto space-y-4 bg-stone-50 scroll-smooth">
             {messages.map((m, i) => (
               <div key={i} className={`flex gap-2 ${m.role === "user" ? "justify-end" : ""}`}>
                 {m.role === "bot" && (
@@ -117,8 +138,8 @@ I am here to help you cut through the noise and access the specific data points 
             )}
           </div>
 
-          {/* Input */}
-          <div className="p-3 bg-white border-t border-gray-200">
+          {/* Input Area */}
+          <div className="p-3 bg-white border-t border-gray-200 shrink-0">
             <form 
               onSubmit={(e) => { e.preventDefault(); sendMessage(); }} 
               className="flex gap-2"
